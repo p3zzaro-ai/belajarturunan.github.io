@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Turunan Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      // Konfigurasi MathJax
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; background-color: #f0f4f8; }
+        .page { display: none; min-height: 100vh; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        .page.active { display: flex; opacity: 1; }
+        .content-card, .card { background-color: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(200, 200, 200, 0.3); border-radius: 1rem; box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; }
+        .modal.active { display: flex; }
+        .modal-content { animation: zoomIn 0.3s ease-out; }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .solution-content { display: none; border-left: 3px solid #6366f1; padding-left: 1rem; margin-top: 0.5rem; }
+        .question-panel-item { width: 2.5rem; height: 2.5rem; display: flex; justify-content: center; align-items: center; border-radius: 0.5rem; font-weight: 600; border: 2px solid #9ca3af; cursor: pointer; transition: all 0.2s; }
+        .question-panel-item:hover { background-color: #e5e7eb; }
+        .question-panel-item.answered { background-color: #10b981; color: white; border-color: #10b981; }
+        .question-panel-item.current { background-color: #6366f1; color: white; border-color: #6366f1; transform: scale(1.1); }
+        .option-button:hover { background-color: #e0e7ff; }
+        .option-button.selected { background-color: #6366f1; color: white; border-color: #4f46e5; }
+    </style>
+</head>
+<body class="text-slate-800">
+
+    <!-- Halaman Login -->
+    <div id="login-page" class="page active flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-100 to-indigo-200">
+        <div class="w-full max-w-md text-center content-card p-8">
+            <h1 class="text-3xl font-bold text-indigo-700 tracking-tight">Belajar Turunan Interaktif</h1>
+            <p class="mt-2 text-slate-600">Media Pembelajaran & Kuis Adaptif</p>
+            <div class="mt-6 space-y-4">
+                <input type="text" id="student-name" placeholder="Ketik namamu di sini..." class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+                <select id="student-class" class="w-full p-3 border border-slate-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <option value="">-- Pilih Kelas --</option>
+                    <option value="Kelas XII-A">Kelas XII-A</option>
+                    <option value="Kelas XII-B">Kelas XII-B</option>
+                    <option value="Kelas XII-C">Kelas XII-C</option>
+                </select>
+            </div>
+            <p id="login-error" class="text-red-500 text-sm mt-2 hidden">Nama dan kelas tidak boleh kosong!</p>
+            <button onclick="login()" class="mt-6 bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700 transition w-full transform hover:scale-105">Masuk</button>
+        </div>
+    </div>
+
+    <!-- Halaman Menu Utama -->
+    <div id="main-menu-page" class="page flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-100 to-indigo-200">
+        <div class="w-full max-w-3xl text-center content-card p-8">
+            <h2 class="text-3xl font-bold text-indigo-700">Materi Pembelajaran Turunan</h2>
+            <p class="mt-2 text-slate-600">Pilih subbab yang ingin kamu pelajari. Selesaikan latihan di setiap subbab untuk membuka kuis!</p>
+            <div id="review-buttons-container" class="mt-6 flex flex-col gap-4">
+                <!-- Tombol Review akan di-generate oleh JS -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Halaman Review Materi -->
+    <div id="review-page" class="page flex-col items-start justify-start bg-gradient-to-br from-slate-100 to-purple-200 p-4 sm:p-6 lg:p-8">
+        <div class="w-full max-w-4xl mx-auto">
+            <div class="text-center mb-4">
+                <button onclick="showPage('main-menu-page')" class="bg-white text-slate-700 font-semibold py-2 px-5 rounded-full shadow hover:bg-slate-200 transition">
+                    &larr; Kembali ke Menu Utama
+                </button>
+            </div>
+            <header id="review-header" class="text-center mb-8"></header>
+            <main id="review-content" class="space-y-10"></main>
+        </div>
+    </div>
+    
+    <!-- Halaman Kuis -->
+    <div id="quiz-page" class="page flex-col items-center w-full bg-slate-200">
+        <div class="fixed top-0 left-0 right-0 bg-white z-50 shadow-md p-2 flex justify-between items-center">
+            <div id="question-panel" class="flex flex-wrap gap-1 max-w-[calc(100%-150px)]"></div>
+            <button onclick="confirmFinishQuiz()" class="bg-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition">Kumpulkan</button>
+        </div>
+        <div class="w-full max-w-5xl mx-auto mt-20 mb-24 p-4">
+            <div class="card p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-slate-600 text-sm font-semibold">Soal <span id="current-question-number">1</span> dari 10</span>
+                    <span id="timer" class="text-red-500 font-bold text-lg">Waktu: 20:00</span>
+                </div>
+                <div id="question-area" class="mb-6">
+                    <div class="math-text text-slate-800 mb-6 text-lg" id="question-text"></div>
+                    <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+            </div>
+        </div>
+        <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-3 z-40">
+            <div class="flex justify-between items-center max-w-5xl mx-auto">
+                <button id="prev-button" class="bg-indigo-600 text-white p-3 rounded-lg font-bold text-xl">&larr;</button>
+                <button id="next-button" class="bg-indigo-600 text-white p-3 rounded-lg font-bold text-xl">&rarr;</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Halaman Laporan Kuis -->
+    <div id="report-page" class="page flex-col items-center justify-center p-4 bg-gradient-to-br from-slate-100 to-green-200">
+        <div class="card w-full max-w-4xl p-8">
+            <h1 class="text-3xl font-bold text-center mb-2 text-green-700">Laporan Hasil Kuis</h1>
+            <p class="text-center text-xl font-semibold text-slate-700 mb-4" id="quiz-topic-title"></p>
+            <div class="text-center mb-6 text-slate-600">
+                <p>Nama: <span id="result-name" class="font-semibold"></span></p>
+                <p>Kelas: <span id="result-class" class="font-semibold"></span></p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="p-6 bg-green-100 rounded-lg text-center">
+                    <h2 class="text-xl font-bold text-green-800">NILAI AKHIR</h2>
+                    <p id="final-score" class="text-5xl font-extrabold text-green-600 mt-2">0</p>
+                </div>
+                <div class="p-6 bg-sky-100 rounded-lg text-center">
+                     <h2 class="text-xl font-bold text-sky-800">Keterangan</h2>
+                    <p id="result-message" class="text-lg mt-2 text-sky-700"></p>
+                </div>
+            </div>
+            <div class="border-t pt-6">
+                <h2 class="text-xl font-bold text-center text-slate-700 mb-4">Rincian Jawaban</h2>
+                <div id="summary-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Rincian Jawaban di-generate JS -->
+                </div>
+            </div>
+             <div class="mt-8 flex flex-wrap justify-center gap-4">
+                <button onclick="showPage('main-menu-page')" class="bg-slate-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-slate-700">Ke Menu Utama</button>
+                <button id="retry-quiz-button" class="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-indigo-700">Coba Lagi Kuis</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Konfirmasi Kuis -->
+    <div id="confirm-submit-modal" class="modal">
+         <div class="modal-content w-11/12 max-w-sm bg-white p-6 rounded-lg text-center">
+            <p id="confirm-submit-message" class="mb-6 text-lg"></p>
+            <div class="flex justify-center gap-4">
+                <button onclick="closeModal('confirm-submit-modal')" class="bg-slate-400 text-white px-6 py-2 rounded-lg hover:bg-slate-500">Batal</button>
+                <button onclick="finishQuiz()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg hover:bg-emerald-700">Ya, Kumpulkan</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+// --- KONFIGURASI DAN DATA ---
+const APP_STATE_KEY = 'derivativeAppState';
+
+// Data untuk halaman review
+const reviewData = {
+    konsepDasar: {
+        id: 'konsepDasar',
+        title: 'Konsep Dasar & Definisi',
+        sections: [
+            {
+                title: "Definisi Turunan Menggunakan Limit",
+                content: "Turunan adalah laju perubahan sesaat, yang secara matematis didefinisikan sebagai limit. Rumus ini adalah fondasi dari semua aturan turunan yang akan kita pelajari.",
+                example: {
+                    problem: "Cari turunan dari $f(x) = 3x^2$ menggunakan definisi limit: $f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$",
+                    solution: [
+                        "$f(x+h) = 3(x+h)^2 = 3(x^2+2xh+h^2) = 3x^2+6xh+3h^2$.",
+                        "$f'(x) = \\lim_{h \\to 0} \\frac{(3x^2+6xh+3h^2) - 3x^2}{h}$",
+                        "$f'(x) = \\lim_{h \\to 0} \\frac{6xh+3h^2}{h} = \\lim_{h \\to 0} \\frac{h(6x+3h)}{h}$",
+                        "Coret $h$: $\\lim_{h \\to 0} (6x+3h)$.",
+                        "Substitusi $h=0$: $6x + 3(0) = 6x$."
+                    ]
+                },
+                exercises: [
+                    { id: 'kd-1', problem: "Turunan dari fungsi konstan $f(x) = 10$ adalah...", answer: '0', explanation: "Fungsi konstan tidak memiliki perubahan, sehingga laju perubahannya (turunannya) adalah 0." },
+                    { id: 'kd-2', problem: "Turunan dari $f(x)=5x$ adalah...", answer: '5', explanation: "Menggunakan definisi limit, $\\lim_{h \\to 0} \\frac{5(x+h) - 5x}{h} = \\lim_{h \\to 0} \\frac{5h}{h} = 5$." },
+                ]
+            }
+        ]
+    },
+    aturanDasar: {
+        id: 'aturanDasar',
+        title: 'Aturan Dasar Turunan Aljabar',
+        sections: [
+            {
+                title: "Aturan Pangkat (Power Rule)",
+                content: "Ini adalah aturan paling fundamental. Jika $f(x) = ax^n$, maka turunannya adalah $f'(x) = a \\cdot n \\cdot x^{n-1}$. Pangkatnya turun ke depan, lalu pangkatnya dikurangi satu.",
+                example: {
+                    problem: "Turunan dari $f(x) = 4x^5 + \\sqrt{x}$",
+                    solution: [
+                        "Ubah $\\sqrt{x}$ menjadi $x^{1/2}$. Jadi $f(x) = 4x^5 + x^{1/2}$.",
+                        "Turunkan suku pertama: $4 \\cdot 5 \\cdot x^{5-1} = 20x^4$.",
+                        "Turunkan suku kedua: $\\frac{1}{2} \\cdot x^{\\frac{1}{2}-1} = \\frac{1}{2}x^{-1/2} = \\frac{1}{2\\sqrt{x}}$.",
+                        "Gabungkan hasilnya: $f'(x) = 20x^4 + \\frac{1}{2\\sqrt{x}}$."
+                    ]
+                },
+                exercises: [
+                    { id: 'ad-1', problem: "Turunan dari $f(x) = 7x^3$ adalah...", answer: '21x^2', explanation: "Gunakan aturan pangkat: $f'(x) = 7 \\cdot 3 \\cdot x^{3-1} = 21x^2$." },
+                    { id: 'ad-2', problem: "Turunan dari $g(x) = -2x^{-4}$ adalah...", answer: '8x^-5', explanation: "$g'(x) = -2 \\cdot (-4) \\cdot x^{-4-1} = 8x^{-5}$." }
+                ]
+            },
+            {
+                title: "Aturan Perkalian & Pembagian",
+                content: "Untuk fungsi yang dikalikan, $h(x) = uv$, maka $h'(x) = u'v + uv'$. Untuk pembagian, $h(x) = \\frac{u}{v}$, maka $h'(x) = \\frac{u'v - uv'}{v^2}$.",
+                example: {
+                    problem: "Cari turunan dari $f(x) = \\frac{2x+1}{x-3}$",
+                    solution: [
+                        "Misal $u=2x+1 \\implies u'=2$.",
+                        "Misal $v=x-3 \\implies v'=1$.",
+                        "Gunakan rumus pembagian: $f'(x) = \\frac{u'v - uv'}{v^2}$.",
+                        "$f'(x) = \\frac{(2)(x-3) - (2x+1)(1)}{(x-3)^2} = \\frac{2x-6-2x-1}{(x-3)^2}$.",
+                        "Hasilnya: $f'(x) = \\frac{-7}{(x-3)^2}$."
+                    ]
+                },
+                exercises: [
+                     { id: 'ad-3', problem: "Turunan dari $f(x) = (x^2)(3x+1)$ menggunakan aturan perkalian adalah...", answer: '9x^2+2x', explanation: "Misal $u=x^2, v=3x+1$. Maka $u'=2x, v'=3$. $f'(x) = u'v+uv' = (2x)(3x+1) + (x^2)(3) = 6x^2+2x+3x^2 = 9x^2+2x$." },
+                     { id: 'ad-4', problem: "Turunan dari $f(x) = \\frac{x+1}{x-1}$ menggunakan aturan pembagian adalah...", answer: '-2/(x-1)^2', explanation: "Misal $u=x+1, v=x-1$. Maka $u'=1, v'=1$. $f'(x) = \\frac{u'v-uv'}{v^2} = \\frac{(1)(x-1) - (x+1)(1)}{(x-1)^2} = \\frac{x-1-x-1}{(x-1)^2} = \\frac{-2}{(x-1)^2}$." }
+                ]
+            }
+        ]
+    },
+    trigoRantai: {
+        id: 'trigoRantai',
+        title: 'Trigonometri & Aturan Rantai',
+        sections: [
+            {
+                title: "Aturan Rantai (Chain Rule)",
+                content: "Digunakan untuk fungsi komposisi atau 'fungsi di dalam fungsi'. Caranya: turunkan fungsi luar (isi dalamnya tetap), lalu kalikan dengan turunan fungsi dalamnya. Jika $y = f(g(x))$, maka $y' = f'(g(x)) \\cdot g'(x)$",
+                example: {
+                    problem: "Tentukan turunan dari $y = (5x^3 - 2)^4$.",
+                    solution: [
+                        "Fungsi luar adalah $(\\dots)^4$, turunannya $4(\\dots)^3$.",
+                        "Fungsi dalam adalah $5x^3 - 2$, turunannya $15x^2$.",
+                        "Gabungkan: $y' = 4(5x^3 - 2)^3 \\cdot (15x^2)$.",
+                        "Hasil: $y' = 60x^2(5x^3 - 2)^3$."
+                    ]
+                },
+                exercises: [
+                    { id: 'tr-1', problem: "Turunan dari $y = (2x+5)^3$ adalah...", answer: '6(2x+5)^2', explanation: "Turunan luar: $3(\\dots)^2$. Turunan dalam: $2$. Hasilnya: $3(2x+5)^2 \\cdot 2 = 6(2x+5)^2$." }
+                ]
+            },
+            {
+                title: "Turunan Fungsi Trigonometri",
+                content: "Dasar: $(\\sin x)' = \\cos x$ dan $(\\cos x)' = -\\sin x$. Jika digabung dengan aturan rantai, misal $y = \\sin(u)$, maka $y' = \\cos(u) \\cdot u' $.",
+                example: {
+                    problem: "Turunan dari $f(x) = \\cos(4x^2 - x)$",
+                    solution: [
+                        "Fungsi luar adalah $\\cos(u)$, turunannya $-\\sin(u)$.",
+                        "Fungsi dalam $u=4x^2-x$, turunannya $u'=8x-1$.",
+                        "Gabungkan: $f'(x) = -\\sin(4x^2-x) \\cdot (8x-1)$.",
+                        "Hasil: $f'(x) = -(8x-1)\\sin(4x^2-x)$."
+                    ]
+                },
+                exercises: [
+                    { id: 'tr-2', problem: "Turunan dari $y=\\sin(5x)$ adalah...", answer: '5cos(5x)', explanation: "Turunan dari $\\sin(u)$ adalah $\\cos(u) \cdot u'$. Disini $u=5x$ dan $u'=5$. Maka hasilnya $5\\cos(5x)$." },
+                    { id: 'tr-3', problem: "Turunan dari $y=\\tan(x)$ adalah...", answer: 'sec^2(x)', explanation: "$y=\\frac{\\sin x}{\\cos x}$. Gunakan aturan pembagian: $\\frac{(\\cos x)(\\cos x) - (\\sin x)(-\\sin x)}{\\cos^2 x} = \\frac{\\cos^2 x + \\sin^2 x}{\\cos^2 x} = \\frac{1}{\\cos^2 x} = \\sec^2 x$." }
+                ]
+            }
+        ]
+    },
+    aplikasi1: {
+        id: 'aplikasi1',
+        title: 'Aplikasi Turunan Pertama',
+        sections: [
+            {
+                title: "Gradien dan Persamaan Garis Singgung",
+                content: "Nilai turunan pertama di suatu titik, $f'(a)$, adalah gradien (kemiringan) garis singgung kurva $y=f(x)$ di titik $x=a$. Persamaan garisnya adalah $y-y_1 = m(x-x_1)$.",
+                example: {
+                    problem: "Tentukan persamaan garis singgung kurva $f(x)=x^2-3x+4$ di titik $(1, 2)$.",
+                    solution: [
+                        "Cari gradien, $m = f'(x) = 2x-3$.",
+                        "Substitusi absis $x=1$: $m = f'(1) = 2(1)-3 = -1$.",
+                        "Gunakan rumus dengan titik $(1, 2)$ dan $m=-1$: $y - 2 = -1(x - 1)$.",
+                        "$y - 2 = -x + 1 \\implies y = -x + 3$."
+                    ]
+                },
+                exercises: [
+                    { id: 'ap1-1', problem: "Gradien garis singgung kurva $y=x^3-6x$ di $x=2$ adalah...", answer: '6', explanation: "$y'=3x^2-6$. Substitusi $x=2$ menjadi $m = 3(2)^2 - 6 = 12-6=6$." }
+                ]
+            },
+            {
+                title: "Fungsi Naik, Turun, dan Titik Stasioner",
+                content: "Grafik fungsi $f(x)$ akan NAIK jika $f'(x) > 0$, dan TURUN jika $f'(x) < 0$. Titik stasioner (puncak/lembah) terjadi saat gradien nol, yaitu $f'(x) = 0$.",
+                example: {
+                    problem: "Tentukan interval naik dari fungsi $f(x) = x^3 - 12x$.",
+                    solution: [
+                        "Cari turunan: $f'(x) = 3x^2 - 12$.",
+                        "Cari titik stasioner ($f'(x)=0$): $3x^2-12=0 \\implies x^2=4 \\implies x=-2$ dan $x=2$.",
+                        "Buat garis bilangan dengan batas -2 dan 2. Uji titik di setiap interval pada $f'(x)$:",
+                        "Untuk $x<-2$ (misal $x=-3$), $f'(-3) = 3(9)-12 = 15$ (positif, NAIK).",
+                        "Untuk $-2<x<2$ (misal $x=0$), $f'(0)=-12$ (negatif, TURUN).",
+                        "Untuk $x>2$ (misal $x=3$), $f'(3)=15$ (positif, NAIK).",
+                        "Jadi, fungsi naik pada interval $x<-2$ atau $x>2$."
+                    ]
+                },
+                exercises: [
+                    { id: 'ap1-2', problem: "Titik stasioner dari $f(x)=x^2-4x+1$ terjadi pada $x=...$", answer: '2', explanation: "Cari turunan: $f'(x)=2x-4$. Set $f'(x)=0 \implies 2x-4=0 \implies x=2$." }
+                ]
+            }
+        ]
+    },
+    aplikasi2: {
+        id: 'aplikasi2',
+        title: 'Aplikasi Lanjutan & Optimisasi',
+        sections: [
+            {
+                title: "Uji Turunan Kedua dan Kecekungan",
+                content: "Turunan kedua, $f''(x)$, menentukan kecekungan kurva. Jika $f''(x)>0$, kurva cekung ke atas (seperti mangkok $\\cup$). Jika $f''(x)<0$, kurva cekung ke bawah (seperti mangkok $\\cap$). Uji ini juga bisa menentukan jenis titik stasioner: jika $f'(c)=0$ dan $f''(c)>0$, maka itu titik minimum.",
+                example: {
+                    problem: "Tentukan jenis titik stasioner dari $f(x) = x^3 - 6x^2$ menggunakan uji turunan kedua.",
+                    solution: [
+                        "$f'(x) = 3x^2 - 12x$. Titik stasioner saat $3x(x-4)=0$, yaitu di $x=0$ dan $x=4$.",
+                        "$f''(x) = 6x-12$.",
+                        "Uji $x=0$: $f''(0) = 6(0)-12 = -12$ (negatif). Maka $x=0$ adalah titik maksimum lokal.",
+                        "Uji $x=4$: $f''(4) = 6(4)-12 = 12$ (positif). Maka $x=4$ adalah titik minimum lokal."
+                    ]
+                },
+                exercises: [
+                    { id: 'ap2-1', problem: "Interval di mana kurva $f(x)=x^3-6x^2$ cekung ke atas adalah...", answer: 'x>2', explanation: "$f'(x)=3x^2-12x$ dan $f''(x)=6x-12$. Cekung ke atas saat $f''(x)>0 \implies 6x-12>0 \implies x>2$." }
+                ]
+            },
+            {
+                title: "Masalah Optimisasi (Maksimum/Minimum)",
+                content: "Ini adalah aplikasi turunan untuk memecahkan masalah nyata. Langkahnya: buat model fungsi, cari turunannya, set turunan = 0, lalu selesaikan.",
+                example: {
+                    problem: "Dua bilangan jumlahnya 20. Tentukan kedua bilangan tersebut agar hasil kalinya maksimum.",
+                    solution: [
+                        "Misal bilangan itu $x$ dan $y$. Maka $x+y=20 \implies y=20-x$.",
+                        "Hasil kali, $K = x \cdot y = x(20-x) = 20x - x^2$.",
+                        "Agar maksimum, turunan $K$ harus nol: $K' = 20 - 2x = 0$.",
+                        "Didapat $2x=20 \implies x=10$.",
+                        "Jika $x=10$, maka $y=20-10=10$. Kedua bilangan adalah 10 dan 10."
+                    ]
+                },
+                exercises: [
+                    { id: 'ap2-2', problem: "Sebuah persegi panjang memiliki keliling 100 m. Agar luasnya maksimum, panjangnya adalah...", answer: '25', explanation: "$2(p+l)=100 \implies p+l=50 \implies l=50-p$. Luas $L=pl=p(50-p)=50p-p^2$. $L'=50-2p=0 \implies p=25$." }
+                ]
+            }
+        ]
+    }
+};
+
+// Bank soal untuk kuis
+const quizBank = {
+    konsepDasar: [
+        { question: "Turunan pertama dari $f(x) = 15$ adalah...", options: ["0", "1", "15", "x"], answer: "0"},
+        { question: "Notasi turunan yang diperkenalkan oleh Leibniz adalah...", options: ["$f'(x)$", "$y'$", "$\\frac{dy}{dx}$", "$D_x y$"], answer: "$\\frac{dy}{dx}$"},
+        { question: "Turunan dari $f(x) = -8x$ adalah...", options: ["-8", "8", "-8x", "0"], answer: "-8"},
+        { question: "Menggunakan definisi limit, turunan dari $f(x) = x^2$ adalah...", options: ["$x$", "$2x$", "$x^2$", "2"], answer: "$2x$"},
+        { question: "Secara geometris, turunan di suatu titik merepresentasikan...", options: ["Luas di bawah kurva", "Panjang busur", "Volume benda putar", "Gradien garis singgung"], answer: "Gradien garis singgung"},
+        { question: "Jika $f(x) = 2x+3$, maka $f'(1)$ adalah...", options: ["1", "2", "3", "5"], answer: "2"},
+        { question: "Proses mencari turunan disebut...", options: ["Integrasi", "Diferensiasi", "Limitasi", "Substitusi"], answer: "Diferensiasi"},
+        { question: "Turunan dari $f(x) = \\frac{1}{2}x$ adalah...", options: ["$x$", "2", "1/2", "0"], answer: "1/2"},
+        { question: "Jika $f'(x) = 4$, maka fungsi $f(x)$ yang mungkin adalah...", options: ["$x^4$", "$4x^2$", "$4x+5$", "$x+4$"], answer: "$4x+5$"},
+        { question: "Definisi turunan $f'(x)$ adalah $\\lim_{h \\to 0} \\frac{...}{h}$", options: ["$f(x+h)+f(x)$", "$f(x+h)-f(x)$", "$f(x)-f(x-h)$", "$f(x)h$"], answer: "$f(x+h)-f(x)$"},
+    ],
+    aturanDasar: [
+        { question: "Turunan dari $f(x) = 3x^4$ adalah...", options: ["$12x^3$", "$7x^3$", "$12x^4$", "$3x^3$"], answer: "$12x^3$"},
+        { question: "Turunan dari $f(x) = 2x^3 - 5x^2 + 7x - 1$ adalah...", options: ["$6x^2-10x+7$", "$3x^2-5x+7$", "$6x^3-10x^2+7$", "$2x^2-5x$"], answer: "$6x^2-10x+7$"},
+        { question: "Turunan dari $f(x) = \\frac{1}{x^3}$ adalah...", options: ["$-3x^{-4}$", "$3x^{-2}$", "$x^{-4}$", "$-3x^2$"], answer: "$-3x^{-4}$"},
+        { question: "Jika $u=2x$ dan $v=x+1$, turunan dari $uv$ adalah...", options: ["$4x+2$", "$2x+2$", "$4x$", "$2$"], answer: "$4x+2$"},
+        { question: "Turunan dari $f(x) = (x+2)(x-1)$ adalah...", options: ["$2x+1$", "$2x-1$", "$x+1$", "$2x$"], answer: "$2x+1$"},
+        { question: "Turunan dari $f(x) = \\frac{x}{x+1}$ adalah...", options: ["$\\frac{1}{(x+1)^2}$", "$\\frac{-1}{(x+1)^2}$", "1", "$\\frac{x}{(x+1)^2}$"], answer: "$\\frac{1}{(x+1)^2}$"},
+        { question: "Turunan dari $f(x) = 5\\sqrt{x}$ adalah...", options: ["$\\frac{5}{2\\sqrt{x}}$", "$5x^{1/2}$", "$\\frac{5}{\\sqrt{x}}$", "$2.5x$"], answer: "$\\frac{5}{2\\sqrt{x}}$"},
+        { question: "Jika $f'(x) = 3x^2$, fungsi $f(x)$ yang mungkin adalah...", options: ["$x^3$", "$6x$", "$3x^3$", "$x^2$"], answer: "$x^3$"},
+        { question: "Turunan dari $f(x) = (2x^2-1)(x+3)$ adalah...", options: ["$6x^2+12x-1$", "$4x+1$", "$2x^2+4x-1$", "$6x^2-12x+1$"], answer: "$6x^2+12x-1$"},
+        { question: "Turunan dari $f(x) = \\frac{3}{x}$ adalah...", options: ["$3x^{-2}$", "$-3x^{-2}$", "3", "$-3$"], answer: "$-3x^{-2}$"},
+    ],
+    trigoRantai: [
+        { question: "Turunan dari $y = (3x+4)^5$ adalah...", options: ["$5(3x+4)^4$", "$15(3x+4)^4$", "$3(3x+4)^4$", "$5(3x+4)^5$"], answer: "$15(3x+4)^4$"},
+        { question: "Turunan dari $y = \\sin(2x)$ adalah...", options: ["$2\\cos(2x)$", "$\\cos(2x)$", "$-2\\cos(2x)$", "$-\\cos(2x)$"], answer: "$2\\cos(2x)$"},
+        { question: "Turunan dari $y = \\cos(x^2)$ adalah...", options: ["$-\\sin(x^2)$", "$2x\\sin(x^2)$", "$-2x\\sin(x^2)$", "$\\sin(2x)$"], answer: "$-2x\\sin(x^2)$"},
+        { question: "Turunan dari $y = \\sqrt{2x+1}$ adalah...", options: ["$\\frac{1}{\\sqrt{2x+1}}$", "$\\frac{1}{2\\sqrt{2x+1}}$", "$\\sqrt{2}$", "$\\frac{2}{\\sqrt{2x+1}}$"], answer: "$\\frac{1}{\\sqrt{2x+1}}$"},
+        { question: "Turunan dari $y = \\tan(3x)$ adalah...", options: ["$3\\sec^2(3x)$", "$\\sec^2(3x)$", "$3\\cot(3x)$", "$\\sec(3x)\\tan(3x)$"], answer: "$3\\sec^2(3x)$"},
+        { question: "Jika $y = \\sin^3(x)$, maka $y'$ adalah...", options: ["$3\\sin^2(x)$", "$3\\cos^3(x)$", "$3\\sin^2(x)\\cos(x)$", "$\\cos^3(x)$"], answer: "$3\\sin^2(x)\\cos(x)$"},
+        { question: "Turunan dari $y = (1-x^2)^6$ adalah...", options: ["$-12x(1-x^2)^5$", "$6(1-x^2)^5$", "$-2x(1-x^2)^5$", "$12x(1-x^2)^5$"], answer: "$-12x(1-x^2)^5$"},
+        { question: "Turunan dari $y = \\sec(x)$ adalah...", options: ["$\\sec(x)\\tan(x)$", "$\\tan^2(x)$", "$-\\csc(x)$", "$\\sec^2(x)$"], answer: "$\\sec(x)\\tan(x)$"},
+        { question: "Turunan dari $y = \\cos(2x+ \\pi)$ adalah...", options: ["$-2\\sin(2x+\\pi)$", "$-\\sin(2x+\\pi)$", "$2\\sin(2x+\\pi)$", "$2\\cos(2x)$"], answer: "$-2\\sin(2x+\\pi)$"},
+        { question: "Turunan dari $y = (\\sin x + \\cos x)^2$ adalah...", options: ["$2(\\sin x + \\cos x)$", "$2(\\cos x - \\sin x)$", "$2\\cos(2x)$", "$1$"], answer: "$2\\cos(2x)$"},
+    ],
+    aplikasi1: [
+        { question: "Gradien garis singgung kurva $y = 2x^2 - 3x + 1$ di $x=2$ adalah...", options: ["3", "5", "8", "1"], answer: "5"},
+        { question: "Fungsi $f(x) = 5-4x-x^2$ turun pada interval...", options: ["$x>-2$", "$x<-2$", "$x>2$", "$x<2$"], answer: "$x>-2$"},
+        { question: "Titik stasioner dari $f(x) = x^3 - 3x$ adalah...", options: ["$x=1$ dan $x=-1$", "$x=0$", "$x=3$ dan $x=-3$", "$x=\\sqrt{3}$"], answer: "$x=1$ dan $x=-1$"},
+        { question: "Persamaan garis singgung kurva $y=x^2$ di titik $(2,4)$ adalah...", options: ["$y=4x-4$", "$y=2x$", "$y=4x$", "$y=2x+2$"], answer: "$y=4x-4$"},
+        { question: "Fungsi $f(x)=x^3$ selalu... ", options: ["Naik", "Turun", "Stasioner", "Konstan"], answer: "Naik"},
+        { question: "Nilai minimum lokal dari $f(x)=x^2-6x+5$ adalah...", options: ["-4", "5", "-3", "6"], answer: "-4"},
+        { question: "Fungsi $f(x) = \\sin x$ untuk $0 < x < \\pi$ naik pada interval...", options: ["$0 < x < \\pi/2$", "$\\pi/2 < x < \\pi$", "$0 < x < \\pi$", "Tidak pernah naik"], answer: "$0 < x < \\pi/2$"},
+        { question: "Garis $y=2x+1$ menyinggung kurva $y=x^2+c$ di $x=1$. Nilai $c$ adalah...", options: ["0", "1", "2", "-1"], answer: "2"},
+        { question: "Nilai maksimum lokal dari $f(x) = 2x^3 - 3x^2 - 12x + 1$ terjadi di...", options: ["$x=-1$", "$x=2$", "$x=0$", "$x=1$"], answer: "$x=-1$"},
+        { question: "Jika sebuah fungsi turun, maka turunan pertamanya...", options: ["Positif", "Negatif", "Nol", "Tidak terdefinisi"], answer: "Negatif"},
+    ],
+    aplikasi2: [
+        { question: "Kurva $f(x)=x^3-3x^2+5$ cekung ke bawah pada interval...", options: ["$x>1$", "$x<1$", "$x>3$", "$x<3$"], answer: "$x<1$"},
+        { question: "Titik belok dari fungsi $f(x) = x^3 - 6x^2 + 12x - 8$ terjadi di $x=...$", options: ["1", "2", "3", "4"], answer: "2"},
+        { question: "Menggunakan uji turunan kedua, titik stasioner $x=0$ pada $f(x)=x^3-3x$ adalah...", options: ["Maksimum lokal", "Minimum lokal", "Titik belok", "Uji gagal"], answer: "Maksimum lokal"},
+        { question: "Sebuah roket bergerak dengan posisi $s(t) = t^3 - 6t^2 + 9t$. Percepatannya saat $t=2$ adalah...", options: ["0", "6", "-6", "12"], answer: "0"},
+        { question: "Dari selembar karton $8 \\times 8$ cm akan dibuat kotak tanpa tutup. Agar volume maksimum, tinggi kotak adalah...", options: ["$4/3$", "$2$", "$8/3$", "$1$"], answer: "$4/3$"},
+        { question: "Jika $f'(2)=0$ dan $f''(2)=5$, maka di $x=2$ terjadi...", options: ["Maksimum lokal", "Minimum lokal", "Titik belok", "Asimtot"], answer: "Minimum lokal"},
+        { question: "Biaya produksi $x$ barang adalah $C(x)=x^2-10x+100$. Biaya minimum terjadi saat memproduksi ... barang.", options: ["5", "10", "100", "20"], answer: "5"},
+        { question: "Kecepatan partikel adalah $v(t) = 3t^2-4$. Percepatan partikel saat $t=1$ adalah...", options: ["6", "2", "-1", "3"], answer: "6"},
+        { question: "Dua bilangan positif hasil kalinya 100. Agar jumlahnya minimum, bilangan tersebut adalah...", options: ["10 dan 10", "20 dan 5", "50 dan 2", "25 dan 4"], answer: "10 dan 10"},
+        { question: "Kurva $y = \\cos x$ untuk $0 < x < 2\\pi$ cekung ke atas pada interval...", options: ["$\\pi/2 < x < 3\\pi/2$", "$0 < x < \\pi$", "$0 < x < \\pi/2$", "$\\pi < x < 2\\pi$"], answer: "$\\pi/2 < x < 3\\pi/2$"},
+    ]
+};
+
+// --- STATE APLIKASI ---
+let appState = {
+    studentName: '',
+    studentClass: '',
+    reviewProgress: {},
+    quizState: null
+};
+
+// --- FUNGSI UTAMA ---
+function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    if (pageId === 'main-menu-page') initMainMenu();
+}
+
+function showModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+function saveState() { localStorage.setItem(APP_STATE_KEY, JSON.stringify(appState)); }
+function loadState() {
+    const savedState = localStorage.getItem(APP_STATE_KEY);
+    if (savedState) appState = JSON.parse(savedState);
+}
+
+// --- LOGIKA LOGIN & MENU UTAMA ---
+function login() {
+    const name = document.getElementById('student-name').value.trim();
+    const sClass = document.getElementById('student-class').value;
+    if (!name || !sClass) {
+        document.getElementById('login-error').classList.remove('hidden');
+        return;
+    }
+    if(appState.studentName !== name) {
+        appState.reviewProgress = {};
+        appState.quizState = null;
+    }
+    appState.studentName = name;
+    appState.studentClass = sClass;
+    saveState();
+    showPage('main-menu-page');
+}
+
+function initMainMenu() {
+    const container = document.getElementById('review-buttons-container');
+    container.innerHTML = '';
+    let topicCounter = 1;
+    Object.values(reviewData).forEach(topic => {
+        const progress = appState.reviewProgress[topic.id] || [];
+        const totalExercises = topic.sections.reduce((sum, sec) => sum + sec.exercises.length, 0);
+        const isDone = progress.length >= totalExercises;
+
+        const buttonHTML = `
+            <button onclick="loadReviewContent('${topic.id}')" class="p-4 rounded-lg shadow-md hover:shadow-lg transition transform hover:-translate-y-1 flex items-center justify-start gap-4 w-full ${isDone ? 'bg-green-600' : 'bg-indigo-600'} text-white text-left">
+                <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-white/20 rounded-full font-bold text-lg">${topicCounter}</span>
+                <span class="font-semibold">${topic.title}</span>
+                ${isDone ? '<span class="ml-auto text-2xl text-white">✓</span>' : ''}
+            </button>
+        `;
+        container.innerHTML += buttonHTML;
+        topicCounter++;
+    });
+}
+
+// --- LOGIKA REVIEW MATERI ---
+function loadReviewContent(topicId) {
+    const topic = reviewData[topicId];
+    document.getElementById('review-header').innerHTML = `<h1 class="text-4xl font-bold text-gray-800">${topic.title}</h1>`;
+    const contentContainer = document.getElementById('review-content');
+    contentContainer.innerHTML = '';
+
+    topic.sections.forEach(section => {
+        let exercisesHTML = section.exercises.map(ex => {
+            const escapedExplanation = ex.explanation.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            return `
+                <div class="latihan-mandiri mt-4 pt-4 border-t" data-exercise-id="${ex.id}">
+                    <h5 class="font-semibold text-sm text-gray-600 mb-2">${ex.problem}</h5>
+                    <div class="flex items-center gap-2">
+                        <input type="text" placeholder="Jawaban" class="flex-grow p-2 border rounded-lg text-sm">
+                        <button onclick="checkAnswer(this, '${ex.answer}', '${escapedExplanation}', '${topicId}')" class="bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-indigo-600">Cek</button>
+                    </div>
+                    <div class="feedback-box mt-2"></div>
+                </div>
+            `;
+        }).join('');
+
+        contentContainer.innerHTML += `
+            <div class="content-card p-6">
+                <h3 class="text-2xl font-bold text-indigo-700 mb-3">${section.title}</h3>
+                <p class="mb-4 text-slate-600">${section.content}</p>
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <h4 class="font-semibold">Contoh:</h4>
+                    <p class="my-2 text-lg">${section.example.problem}</p>
+                    <div class="solution-toggle bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold p-2 rounded-md text-sm inline-block cursor-pointer" onclick="toggleSolution(this)">Lihat Pembahasan</div>
+                    <div class="solution-content">${section.example.solution.map(s => `<p>${s}</p>`).join('')}</div>
+                </div>
+                ${exercisesHTML}
+            </div>
+        `;
+    });
+    
+    contentContainer.innerHTML += `
+        <div id="quiz-button-container" class="hidden text-center content-card p-6 mt-8">
+            <h3 class="text-2xl font-bold text-green-600">Materi Selesai!</h3>
+            <p class="text-slate-600 mt-2">Kamu sudah siap untuk menguji pemahamanmu di subbab ini.</p>
+            <button onclick="startQuiz('${topicId}')" class="mt-4 bg-emerald-600 text-white font-semibold py-3 px-6 rounded-full shadow hover:bg-emerald-700 transition transform hover:scale-105">
+                Mulai Kuis: ${topic.title}
+            </button>
+        </div>
+    `;
+
+    showPage('review-page');
+    MathJax.typeset();
+    
+    (appState.reviewProgress[topicId] || []).forEach(exerciseId => {
+        const exerciseEl = document.querySelector(`[data-exercise-id="${exerciseId}"]`);
+        if (exerciseEl) {
+            const correctExercise = reviewData[topicId].sections.flatMap(s => s.exercises).find(e => e.id === exerciseId);
+            if(correctExercise) {
+                exerciseEl.querySelector('input').disabled = true;
+                exerciseEl.querySelector('input').value = correctExercise.answer;
+            }
+        }
+    });
+    checkReviewCompletion(topicId);
+}
+
+function checkReviewCompletion(topicId) {
+    const topic = reviewData[topicId];
+    const progress = appState.reviewProgress[topicId] || [];
+    const totalExercises = topic.sections.reduce((sum, sec) => sum + sec.exercises.length, 0);
+    if (progress.length >= totalExercises) {
+        document.getElementById('quiz-button-container').classList.remove('hidden');
+    }
+}
+
+function toggleSolution(element) {
+    const solutionContent = element.nextElementSibling;
+    solutionContent.style.display = solutionContent.style.display === 'block' ? 'none' : 'block';
+    element.textContent = solutionContent.style.display === 'block' ? 'Sembunyikan Pembahasan' : 'Lihat Pembahasan';
+    if(solutionContent.style.display === 'block') MathJax.typeset([solutionContent]);
+}
+
+function checkAnswer(button, correctAnswer, explanation, topicId) {
+    const exerciseContainer = button.closest('.latihan-mandiri');
+    const inputField = exerciseContainer.querySelector('input');
+    const feedbackBox = exerciseContainer.querySelector('.feedback-box');
+    const userAnswer = inputField.value.trim().replace(/\s+/g, '').toLowerCase();
+    
+    const normalizedCorrectAnswer = correctAnswer.replace(/\s+/g, '').toLowerCase();
+
+    if (userAnswer === normalizedCorrectAnswer) {
+        feedbackBox.innerHTML = `<div class="p-3 bg-green-50 rounded-md border border-green-200"><p class="font-bold text-green-600">Benar!</p><p class="text-slate-800">${explanation}</p></div>`;
+        if (!inputField.disabled) {
+            const exerciseId = exerciseContainer.dataset.exerciseId;
+            if (!appState.reviewProgress[topicId]) appState.reviewProgress[topicId] = [];
+            if (!appState.reviewProgress[topicId].includes(exerciseId)) {
+                appState.reviewProgress[topicId].push(exerciseId);
+                saveState();
+            }
+        }
+        inputField.disabled = true;
+        inputField.value = correctAnswer;
+        checkReviewCompletion(topicId);
+    } else {
+        feedbackBox.innerHTML = `<div class="p-3 bg-red-50 rounded-md border border-red-200"><p class="font-bold text-red-600">Kurang Tepat. Coba perhatikan pembahasan berikut dan ulangi lagi.</p><p class="text-slate-800 mt-2">${explanation}</p></div>`;
+    }
+    MathJax.typeset([feedbackBox]);
+}
+
+// --- LOGIKA KUIS ---
+let timerInterval;
+function startQuiz(topicId) {
+    appState.quizState = {
+        topicId: topicId,
+        questions: quizBank[topicId],
+        userAnswers: Array(10).fill(null),
+        currentQuestionIndex: 0,
+        remainingTime: 20 * 60
+    };
+    
+    showPage('quiz-page');
+    displayQuestion(0);
+    startTimer();
+}
+
+function displayQuestion(index) {
+    appState.quizState.currentQuestionIndex = index;
+    const q = appState.quizState.questions[index];
+    document.getElementById('current-question-number').textContent = index + 1;
+    document.getElementById('question-text').textContent = q.question;
+    
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = '';
+    const optionLetters = ['A', 'B', 'C', 'D'];
+    q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-button p-4 border-2 rounded-lg flex items-center gap-4 text-left';
+        btn.innerHTML = `<span class="font-bold">${optionLetters[i]}.</span><span>${opt}</span>`;
+        btn.onclick = () => selectOption(opt);
+        if (appState.quizState.userAnswers[index] === opt) btn.classList.add('selected');
+        optionsContainer.appendChild(btn);
+    });
+    
+    updateQuestionPanel();
+    updateNavButtons();
+    MathJax.typeset([document.getElementById('question-area')]);
+}
+
+function selectOption(option) {
+    const index = appState.quizState.currentQuestionIndex;
+    appState.quizState.userAnswers[index] = option;
+    displayQuestion(index);
+}
+
+function updateQuestionPanel() {
+    const panel = document.getElementById('question-panel');
+    panel.innerHTML = '';
+    for (let i = 0; i < 10; i++) {
+        const item = document.createElement('div');
+        item.className = 'question-panel-item';
+        item.textContent = i + 1;
+        item.onclick = () => displayQuestion(i);
+        if (i === appState.quizState.currentQuestionIndex) item.classList.add('current');
+        else if (appState.quizState.userAnswers[i] !== null) item.classList.add('answered');
+        panel.appendChild(item);
+    }
+}
+
+function updateNavButtons() {
+    const prevBtn = document.getElementById('prev-button');
+    const nextBtn = document.getElementById('next-button');
+    prevBtn.disabled = appState.quizState.currentQuestionIndex === 0;
+    nextBtn.disabled = appState.quizState.currentQuestionIndex === 9;
+    prevBtn.classList.toggle('opacity-50', prevBtn.disabled);
+    nextBtn.classList.toggle('opacity-50', nextBtn.disabled);
+}
+
+function handleNav(direction) {
+    let newIndex = appState.quizState.currentQuestionIndex + direction;
+    if (newIndex >= 0 && newIndex < 10) displayQuestion(newIndex);
+}
+
+function startTimer() {
+    if(timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        appState.quizState.remainingTime--;
+        const mins = Math.floor(appState.quizState.remainingTime / 60);
+        const secs = appState.quizState.remainingTime % 60;
+        document.getElementById('timer').textContent = `Waktu: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        if (appState.quizState.remainingTime <= 0) finishQuiz();
+    }, 1000);
+}
+
+function confirmFinishQuiz() {
+    const unanswered = appState.quizState.userAnswers.filter(a => a === null).length;
+    const message = unanswered > 0 ? `Masih ada ${unanswered} soal belum dijawab. Yakin kumpulkan?` : 'Yakin ingin mengumpulkan?';
+    document.getElementById('confirm-submit-message').textContent = message;
+    showModal('confirm-submit-modal');
+}
+
+function finishQuiz() {
+    closeModal('confirm-submit-modal');
+    clearInterval(timerInterval);
+    showPage('report-page');
+    generateReport();
+}
+
+// --- LOGIKA LAPORAN ---
+function generateReport() {
+    document.getElementById('result-name').textContent = appState.studentName;
+    document.getElementById('result-class').textContent = appState.studentClass;
+    const topicId = appState.quizState.topicId;
+    document.getElementById('quiz-topic-title').textContent = reviewData[topicId].title;
+
+    let correctAnswers = 0;
+    appState.quizState.questions.forEach((q, i) => {
+        if (q.answer === appState.quizState.userAnswers[i]) correctAnswers++;
+    });
+
+    const totalScore = correctAnswers * 10;
+    document.getElementById('final-score').textContent = totalScore;
+    
+    let message = totalScore >= 70 ? "Bagus! Kamu menguasai subbab ini!" : "Ayo pelajari lagi dan coba kembali!";
+    document.getElementById('result-message').textContent = message;
+    
+    renderReportDetails();
+    document.getElementById('retry-quiz-button').onclick = () => startQuiz(topicId);
+}
+
+function renderReportDetails() {
+    const container = document.getElementById('summary-container');
+    container.innerHTML = '';
+    appState.quizState.questions.forEach((q, i) => {
+        const userAnswer = appState.quizState.userAnswers[i];
+        const isCorrect = q.answer === userAnswer;
+        const cardClass = isCorrect ? 'bg-green-50 border-green-300' : 'bg-red-50 border-red-300';
+        
+        container.innerHTML += `
+            <div class="p-4 rounded-lg border ${cardClass}">
+                <p class="font-bold mb-2">Soal ${i + 1}</p>
+                <div class="text-sm mb-2">${q.question}</div>
+                <p class="text-sm mt-4">Jawaban Anda: <span class="font-semibold">${userAnswer || 'Tidak dijawab'}</span></p>
+                ${!isCorrect ? `<p class="text-sm text-green-700">Jawaban Benar: <span class="font-semibold">${q.answer}</span></p>` : ''}
+            </div>
+        `;
+    });
+    MathJax.typeset([container]);
+}
+
+// --- EVENT LISTENERS ---
+document.addEventListener('DOMContentLoaded', () => {
+    loadState();
+    if(appState.studentName) {
+        document.getElementById('student-name').value = appState.studentName;
+        document.getElementById('student-class').value = appState.studentClass;
+        showPage('main-menu-page');
+    } else {
+        showPage('login-page');
+    }
+
+    document.getElementById('prev-button').addEventListener('click', () => handleNav(-1));
+    document.getElementById('next-button').addEventListener('click', () => handleNav(1));
+});
+</script>
+
+</body>
+</html>
