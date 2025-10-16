@@ -30,12 +30,50 @@
         .modal-content { animation: zoomIn 0.3s ease-out; }
         @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .solution-content { display: none; border-left: 3px solid #6366f1; padding-left: 1rem; margin-top: 0.5rem; }
+        
+        /* Styling Kuis */
         .question-panel-item { width: 2.5rem; height: 2.5rem; display: flex; justify-content: center; align-items: center; border-radius: 0.5rem; font-weight: 600; border: 2px solid #9ca3af; cursor: pointer; transition: all 0.2s; }
         .question-panel-item:hover { background-color: #e5e7eb; }
         .question-panel-item.answered { background-color: #10b981; color: white; border-color: #10b981; }
         .question-panel-item.current { background-color: #6366f1; color: white; border-color: #6366f1; transform: scale(1.1); }
         .option-button:hover { background-color: #e0e7ff; }
         .option-button.selected { background-color: #6366f1; color: white; border-color: #4f46e5; }
+
+        /* Styling Latihan Pilihan Ganda */
+        .exercise-option {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #d1d5db;
+            border-radius: 0.5rem;
+            text-align: left;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .exercise-option:not([disabled]):hover {
+            border-color: #818cf8;
+            background-color: #eef2ff;
+        }
+        .exercise-option.selected {
+            border-color: #6366f1;
+            background-color: #c7d2fe;
+            font-weight: 600;
+        }
+        .exercise-option.correct {
+            border-color: #34d399;
+            background-color: #d1fae5;
+            color: #065f46;
+            font-weight: 600;
+        }
+        .exercise-option.incorrect {
+            border-color: #f87171;
+            background-color: #fee2e2;
+            color: #991b1b;
+            font-weight: 600;
+        }
+        .exercise-option:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body class="text-slate-800">
@@ -190,8 +228,8 @@ const reviewData = {
                     ]
                 },
                 exercises: [
-                    { id: 'kd-1', problem: "Turunan dari fungsi konstan $f(x) = 10$ adalah...", answer: '0', explanation: "Fungsi konstan tidak memiliki perubahan, sehingga laju perubahannya (turunannya) adalah 0." },
-                    { id: 'kd-2', problem: "Turunan dari $f(x)=5x$ adalah...", answer: '5', explanation: "Menggunakan definisi limit, $\\lim_{h \\to 0} \\frac{5(x+h) - 5x}{h} = \\lim_{h \\to 0} \\frac{5h}{h} = 5$." },
+                    { id: 'kd-1', problem: "Turunan dari fungsi konstan $f(x) = 10$ adalah...", choices: ["10", "1", "0", "x", "-10"], answer: '0', explanation: "Fungsi konstan tidak memiliki perubahan, sehingga laju perubahannya (turunannya) adalah 0." },
+                    { id: 'kd-2', problem: "Turunan dari $f(x)=5x$ adalah...", choices: ["5x", "x", "5", "0", "1"], answer: '5', explanation: "Menggunakan definisi limit, $\\lim_{h \\to 0} \\frac{5(x+h) - 5x}{h} = \\lim_{h \\to 0} \\frac{5h}{h} = 5$." },
                 ]
             }
         ]
@@ -214,8 +252,8 @@ const reviewData = {
                     ]
                 },
                 exercises: [
-                    { id: 'ad-1', problem: "Turunan dari $f(x) = 7x^3$ adalah...", answer: '21x^2', explanation: "Gunakan aturan pangkat: $f'(x) = 7 \\cdot 3 \\cdot x^{3-1} = 21x^2$." },
-                    { id: 'ad-2', problem: "Turunan dari $g(x) = -2x^{-4}$ adalah...", answer: '8x^-5', explanation: "$g'(x) = -2 \\cdot (-4) \\cdot x^{-4-1} = 8x^{-5}$." }
+                    { id: 'ad-1', problem: "Turunan dari $f(x) = 7x^3$ adalah...", choices: ["$7x^2$", "$21x^3$", "$21x^2$", "$3x^2$", "$7x$"], answer: '$21x^2$', explanation: "Gunakan aturan pangkat: $f'(x) = 7 \\cdot 3 \\cdot x^{3-1} = 21x^2$." },
+                    { id: 'ad-2', problem: "Turunan dari $g(x) = -2x^{-4}$ adalah...", choices: ["$-8x^{-5}$", "$8x^{-3}$", "$8x^{-5}$", "$-6x^{-3}$", "$-8x^{-3}$"], answer: '$8x^{-5}$', explanation: "$g'(x) = -2 \\cdot (-4) \\cdot x^{-4-1} = 8x^{-5}$." }
                 ]
             },
             {
@@ -224,16 +262,16 @@ const reviewData = {
                 example: {
                     problem: "Cari turunan dari $f(x) = \\frac{2x+1}{x-3}$",
                     solution: [
-                        "Misal $u=2x+1 \\implies u'=2$.",
-                        "Misal $v=x-3 \\implies v'=1$.",
+                        "Misal $u=2x+1 \\Rightarrow u'=2$.",
+                        "Misal $v=x-3 \\Rightarrow v'=1$.",
                         "Gunakan rumus pembagian: $f'(x) = \\frac{u'v - uv'}{v^2}$.",
                         "$f'(x) = \\frac{(2)(x-3) - (2x+1)(1)}{(x-3)^2} = \\frac{2x-6-2x-1}{(x-3)^2}$.",
                         "Hasilnya: $f'(x) = \\frac{-7}{(x-3)^2}$."
                     ]
                 },
                 exercises: [
-                     { id: 'ad-3', problem: "Turunan dari $f(x) = (x^2)(3x+1)$ menggunakan aturan perkalian adalah...", answer: '9x^2+2x', explanation: "Misal $u=x^2, v=3x+1$. Maka $u'=2x, v'=3$. $f'(x) = u'v+uv' = (2x)(3x+1) + (x^2)(3) = 6x^2+2x+3x^2 = 9x^2+2x$." },
-                     { id: 'ad-4', problem: "Turunan dari $f(x) = \\frac{x+1}{x-1}$ menggunakan aturan pembagian adalah...", answer: '-2/(x-1)^2', explanation: "Misal $u=x+1, v=x-1$. Maka $u'=1, v'=1$. $f'(x) = \\frac{u'v-uv'}{v^2} = \\frac{(1)(x-1) - (x+1)(1)}{(x-1)^2} = \\frac{x-1-x-1}{(x-1)^2} = \\frac{-2}{(x-1)^2}$." }
+                     { id: 'ad-3', problem: "Turunan dari $f(x) = (x^2)(3x+1)$ menggunakan aturan perkalian adalah...", choices: ["$6x$", "$3x^2+1$", "$9x^2+2x$", "$6x+1$", "$6x^2+1$"], answer: '$9x^2+2x$', explanation: "Misal $u=x^2, v=3x+1$. Maka $u'=2x, v'=3$. $f'(x) = u'v+uv' = (2x)(3x+1) + (x^2)(3) = 6x^2+2x+3x^2 = 9x^2+2x$." },
+                     { id: 'ad-4', problem: "Turunan dari $f(x) = \\frac{x+1}{x-1}$ adalah...", choices: ["1", "$\\frac{2}{(x-1)^2}$", "$\\frac{-2}{(x-1)^2}$", "$\\frac{2x}{(x-1)^2}$", "-2"], answer: '$\\frac{-2}{(x-1)^2}$', explanation: "Misal $u=x+1, v=x-1$. Maka $u'=1, v'=1$. $f'(x) = \\frac{u'v-uv'}{v^2} = \\frac{(1)(x-1) - (x+1)(1)}{(x-1)^2} = \\frac{x-1-x-1}{(x-1)^2} = \\frac{-2}{(x-1)^2}$." }
                 ]
             }
         ]
@@ -255,7 +293,7 @@ const reviewData = {
                     ]
                 },
                 exercises: [
-                    { id: 'tr-1', problem: "Turunan dari $y = (2x+5)^3$ adalah...", answer: '6(2x+5)^2', explanation: "Turunan luar: $3(\\dots)^2$. Turunan dalam: $2$. Hasilnya: $3(2x+5)^2 \\cdot 2 = 6(2x+5)^2$." }
+                    { id: 'tr-1', problem: "Turunan dari $y = (2x+5)^3$ adalah...", choices: ["$3(2x+5)^2$", "$2(2x+5)^2$", "$6(2x+5)^2$", "$3(2x+5)^3$", "$6(2x+5)^3$"], answer: '$6(2x+5)^2$', explanation: "Turunan luar: $3(\\dots)^2$. Turunan dalam: $2$. Hasilnya: $3(2x+5)^2 \\cdot 2 = 6(2x+5)^2$." }
                 ]
             },
             {
@@ -271,8 +309,8 @@ const reviewData = {
                     ]
                 },
                 exercises: [
-                    { id: 'tr-2', problem: "Turunan dari $y=\\sin(5x)$ adalah...", answer: '5cos(5x)', explanation: "Turunan dari $\\sin(u)$ adalah $\\cos(u) \cdot u'$. Disini $u=5x$ dan $u'=5$. Maka hasilnya $5\\cos(5x)$." },
-                    { id: 'tr-3', problem: "Turunan dari $y=\\tan(x)$ adalah...", answer: 'sec^2(x)', explanation: "$y=\\frac{\\sin x}{\\cos x}$. Gunakan aturan pembagian: $\\frac{(\\cos x)(\\cos x) - (\\sin x)(-\\sin x)}{\\cos^2 x} = \\frac{\\cos^2 x + \\sin^2 x}{\\cos^2 x} = \\frac{1}{\\cos^2 x} = \\sec^2 x$." }
+                    { id: 'tr-2', problem: "Turunan dari $y=\\sin(5x)$ adalah...", choices: ["$\\cos(5x)$", "$-5\\cos(5x)$", "$5\\cos(5x)$", "$-\\cos(5x)$", "$5\\sin(5x)$"], answer: '$5\\cos(5x)$', explanation: "Turunan dari $\\sin(u)$ adalah $\\cos(u) \\cdot u'$. Disini $u=5x$ dan $u'=5$. Maka hasilnya $5\\cos(5x)$." },
+                    { id: 'tr-3', problem: "Turunan dari $y=\\tan(x)$ adalah...", choices: ["$\\cot(x)$", "$\\sec(x)\\tan(x)$", "$\\sec^2(x)$", "$-\\csc^2(x)$", "1"], answer: '$\\sec^2(x)$', explanation: "$y=\\frac{\\sin x}{\\cos x}$. Gunakan aturan pembagian: $\\frac{(\\cos x)(\\cos x) - (\\sin x)(-\\sin x)}{\\cos^2 x} = \\frac{\\cos^2 x + \\sin^2 x}{\\cos^2 x} = \\frac{1}{\\cos^2 x} = \\sec^2 x$." }
                 ]
             }
         ]
@@ -290,11 +328,11 @@ const reviewData = {
                         "Cari gradien, $m = f'(x) = 2x-3$.",
                         "Substitusi absis $x=1$: $m = f'(1) = 2(1)-3 = -1$.",
                         "Gunakan rumus dengan titik $(1, 2)$ dan $m=-1$: $y - 2 = -1(x - 1)$.",
-                        "$y - 2 = -x + 1 \\implies y = -x + 3$."
+                        "$y - 2 = -x + 1 \\Rightarrow y = -x + 3$."
                     ]
                 },
                 exercises: [
-                    { id: 'ap1-1', problem: "Gradien garis singgung kurva $y=x^3-6x$ di $x=2$ adalah...", answer: '6', explanation: "$y'=3x^2-6$. Substitusi $x=2$ menjadi $m = 3(2)^2 - 6 = 12-6=6$." }
+                    { id: 'ap1-1', problem: "Gradien garis singgung kurva $y=x^3-6x$ di $x=2$ adalah...", choices: ["12", "0", "8", "6", "-2"], answer: '6', explanation: "$y'=3x^2-6$. Substitusi $x=2$ menjadi $m = 3(2)^2 - 6 = 12-6=6$." }
                 ]
             },
             {
@@ -304,7 +342,7 @@ const reviewData = {
                     problem: "Tentukan interval naik dari fungsi $f(x) = x^3 - 12x$.",
                     solution: [
                         "Cari turunan: $f'(x) = 3x^2 - 12$.",
-                        "Cari titik stasioner ($f'(x)=0$): $3x^2-12=0 \\implies x^2=4 \\implies x=-2$ dan $x=2$.",
+                        "Cari titik stasioner ($f'(x)=0$): $3x^2-12=0 \\Rightarrow x^2=4 \\Rightarrow x=-2$ dan $x=2$.",
                         "Buat garis bilangan dengan batas -2 dan 2. Uji titik di setiap interval pada $f'(x)$:",
                         "Untuk $x<-2$ (misal $x=-3$), $f'(-3) = 3(9)-12 = 15$ (positif, NAIK).",
                         "Untuk $-2<x<2$ (misal $x=0$), $f'(0)=-12$ (negatif, TURUN).",
@@ -313,7 +351,7 @@ const reviewData = {
                     ]
                 },
                 exercises: [
-                    { id: 'ap1-2', problem: "Titik stasioner dari $f(x)=x^2-4x+1$ terjadi pada $x=...$", answer: '2', explanation: "Cari turunan: $f'(x)=2x-4$. Set $f'(x)=0 \implies 2x-4=0 \implies x=2$." }
+                    { id: 'ap1-2', problem: "Titik stasioner dari $f(x)=x^2-4x+1$ terjadi pada $x=...$", choices: ["4", "1", "2", "-2", "-4"], answer: '2', explanation: "Cari turunan: $f'(x)=2x-4$. Set $f'(x)=0 \\Rightarrow 2x-4=0 \\Rightarrow x=2$." }
                 ]
             }
         ]
@@ -335,7 +373,7 @@ const reviewData = {
                     ]
                 },
                 exercises: [
-                    { id: 'ap2-1', problem: "Interval di mana kurva $f(x)=x^3-6x^2$ cekung ke atas adalah...", answer: 'x>2', explanation: "$f'(x)=3x^2-12x$ dan $f''(x)=6x-12$. Cekung ke atas saat $f''(x)>0 \implies 6x-12>0 \implies x>2$." }
+                    { id: 'ap2-1', problem: "Interval di mana kurva $f(x)=x^3-6x^2$ cekung ke atas adalah...", choices: ["$x<2$", "$x>2$", "$x>0$", "$x<3$", "$x>3$"], answer: '$x>2$', explanation: "$f'(x)=3x^2-12x$ dan $f''(x)=6x-12$. Cekung ke atas saat $f''(x)>0 \\Rightarrow 6x-12>0 \\Rightarrow x>2$." }
                 ]
             },
             {
@@ -344,15 +382,15 @@ const reviewData = {
                 example: {
                     problem: "Dua bilangan jumlahnya 20. Tentukan kedua bilangan tersebut agar hasil kalinya maksimum.",
                     solution: [
-                        "Misal bilangan itu $x$ dan $y$. Maka $x+y=20 \implies y=20-x$.",
-                        "Hasil kali, $K = x \cdot y = x(20-x) = 20x - x^2$.",
+                        "Misal bilangan itu $x$ dan $y$. Maka $x+y=20 \\Rightarrow y=20-x$.",
+                        "Hasil kali, $K = x \\cdot y = x(20-x) = 20x - x^2$.",
                         "Agar maksimum, turunan $K$ harus nol: $K' = 20 - 2x = 0$.",
-                        "Didapat $2x=20 \implies x=10$.",
+                        "Didapat $2x=20 \\Rightarrow x=10$.",
                         "Jika $x=10$, maka $y=20-10=10$. Kedua bilangan adalah 10 dan 10."
                     ]
                 },
                 exercises: [
-                    { id: 'ap2-2', problem: "Sebuah persegi panjang memiliki keliling 100 m. Agar luasnya maksimum, panjangnya adalah...", answer: '25', explanation: "$2(p+l)=100 \implies p+l=50 \implies l=50-p$. Luas $L=pl=p(50-p)=50p-p^2$. $L'=50-2p=0 \implies p=25$." }
+                    { id: 'ap2-2', problem: "Sebuah persegi panjang memiliki keliling 100 m. Agar luasnya maksimum, panjangnya adalah...", choices: ["50", "100", "20", "25", "30"], answer: '25', explanation: "$2(p+l)=100 \\Rightarrow p+l=50 \\Rightarrow l=50-p$. Luas $L=pl=p(50-p)=50p-p^2$. $L'=50-2p=0 \\Rightarrow p=25$." }
                 ]
             }
         ]
@@ -504,13 +542,16 @@ function loadReviewContent(topicId) {
 
     topic.sections.forEach(section => {
         let exercisesHTML = section.exercises.map(ex => {
-            const escapedExplanation = ex.explanation.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+            const choicesHTML = ex.choices.map(choice => 
+                `<button class="exercise-option" data-choice="${choice.replace(/"/g, '&quot;')}" onclick="selectExerciseOption(this)">${choice}</button>`
+            ).join('');
+
             return `
                 <div class="latihan-mandiri mt-4 pt-4 border-t" data-exercise-id="${ex.id}">
                     <h5 class="font-semibold text-sm text-gray-600 mb-2">${ex.problem}</h5>
+                    <div class="exercise-options-container flex flex-col gap-2 my-2">${choicesHTML}</div>
                     <div class="flex items-center gap-2">
-                        <input type="text" placeholder="Jawaban" class="flex-grow p-2 border rounded-lg text-sm">
-                        <button onclick="checkAnswer(this, '${ex.answer}', '${escapedExplanation}', '${topicId}')" class="bg-indigo-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-indigo-600">Cek</button>
+                        <button data-state="check" onclick="checkExerciseAnswer(this, '${topicId}', '${ex.id}')" class="bg-indigo-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-600 transition disabled:bg-slate-400 disabled:cursor-not-allowed disabled:hover:bg-slate-400">Cek</button>
                     </div>
                     <div class="feedback-box mt-2"></div>
                 </div>
@@ -543,19 +584,36 @@ function loadReviewContent(topicId) {
     `;
 
     showPage('review-page');
-    MathJax.typeset();
+    if (window.MathJax) {
+        MathJax.typesetPromise();
+    }
     
+    // Restore state for completed exercises
     (appState.reviewProgress[topicId] || []).forEach(exerciseId => {
         const exerciseEl = document.querySelector(`[data-exercise-id="${exerciseId}"]`);
         if (exerciseEl) {
             const correctExercise = reviewData[topicId].sections.flatMap(s => s.exercises).find(e => e.id === exerciseId);
-            if(correctExercise) {
-                exerciseEl.querySelector('input').disabled = true;
-                exerciseEl.querySelector('input').value = correctExercise.answer;
+            if (correctExercise) {
+                const optionButtons = exerciseEl.querySelectorAll('.exercise-option');
+                optionButtons.forEach(btn => {
+                    btn.disabled = true;
+                    if (btn.dataset.choice === correctExercise.answer) {
+                        btn.classList.add('correct');
+                    }
+                });
+                const checkButton = exerciseEl.querySelector('[data-state]');
+                checkButton.innerHTML = 'Selesai ✓';
+                checkButton.disabled = true;
             }
         }
     });
     checkReviewCompletion(topicId);
+}
+
+function selectExerciseOption(buttonEl) {
+    const optionContainer = buttonEl.parentElement;
+    optionContainer.querySelectorAll('.exercise-option').forEach(btn => btn.classList.remove('selected'));
+    buttonEl.classList.add('selected');
 }
 
 function checkReviewCompletion(topicId) {
@@ -571,35 +629,72 @@ function toggleSolution(element) {
     const solutionContent = element.nextElementSibling;
     solutionContent.style.display = solutionContent.style.display === 'block' ? 'none' : 'block';
     element.textContent = solutionContent.style.display === 'block' ? 'Sembunyikan Pembahasan' : 'Lihat Pembahasan';
-    if(solutionContent.style.display === 'block') MathJax.typeset([solutionContent]);
+    if(solutionContent.style.display === 'block' && window.MathJax) {
+        MathJax.typesetPromise([solutionContent]);
+    }
 }
 
-function checkAnswer(button, correctAnswer, explanation, topicId) {
-    const exerciseContainer = button.closest('.latihan-mandiri');
-    const inputField = exerciseContainer.querySelector('input');
+function checkExerciseAnswer(buttonEl, topicId, exerciseId) {
+    const exerciseContainer = buttonEl.closest('.latihan-mandiri');
     const feedbackBox = exerciseContainer.querySelector('.feedback-box');
-    const userAnswer = inputField.value.trim().replace(/\s+/g, '').toLowerCase();
-    
-    const normalizedCorrectAnswer = correctAnswer.replace(/\s+/g, '').toLowerCase();
+    const selectedOption = exerciseContainer.querySelector('.exercise-option.selected');
+    const allOptions = exerciseContainer.querySelectorAll('.exercise-option');
 
-    if (userAnswer === normalizedCorrectAnswer) {
+    const exercise = reviewData[topicId].sections.flatMap(s => s.exercises).find(e => e.id === exerciseId);
+    if (!exercise) return;
+    const { answer: correctAnswer, explanation } = exercise;
+
+    if (buttonEl.dataset.state === 'retry') {
+        allOptions.forEach(btn => {
+            btn.disabled = false;
+            btn.classList.remove('incorrect', 'selected');
+        });
+        feedbackBox.innerHTML = '';
+        buttonEl.textContent = 'Cek';
+        buttonEl.dataset.state = 'check';
+        return;
+    }
+
+    if (!selectedOption) {
+        feedbackBox.innerHTML = `<div class="p-3 bg-yellow-50 rounded-md border border-yellow-200"><p class="font-bold text-yellow-700">Pilih salah satu jawaban terlebih dahulu!</p></div>`;
+        return;
+    }
+
+    const userAnswer = selectedOption.dataset.choice;
+
+    if (userAnswer === correctAnswer) {
         feedbackBox.innerHTML = `<div class="p-3 bg-green-50 rounded-md border border-green-200"><p class="font-bold text-green-600">Benar!</p><p class="text-slate-800">${explanation}</p></div>`;
-        if (!inputField.disabled) {
-            const exerciseId = exerciseContainer.dataset.exerciseId;
-            if (!appState.reviewProgress[topicId]) appState.reviewProgress[topicId] = [];
-            if (!appState.reviewProgress[topicId].includes(exerciseId)) {
-                appState.reviewProgress[topicId].push(exerciseId);
-                saveState();
-            }
+        
+        selectedOption.classList.remove('selected');
+        selectedOption.classList.add('correct');
+
+        allOptions.forEach(btn => btn.disabled = true);
+
+        buttonEl.innerHTML = 'Selesai ✓';
+        buttonEl.disabled = true;
+        buttonEl.classList.add('bg-slate-400', 'cursor-not-allowed', 'hover:bg-slate-400');
+
+
+        if (!appState.reviewProgress[topicId]) appState.reviewProgress[topicId] = [];
+        if (!appState.reviewProgress[topicId].includes(exerciseId)) {
+            appState.reviewProgress[topicId].push(exerciseId);
+            saveState();
         }
-        inputField.disabled = true;
-        inputField.value = correctAnswer;
         checkReviewCompletion(topicId);
     } else {
-        feedbackBox.innerHTML = `<div class="p-3 bg-red-50 rounded-md border border-red-200"><p class="font-bold text-red-600">Kurang Tepat. Coba perhatikan pembahasan berikut dan ulangi lagi.</p><p class="text-slate-800 mt-2">${explanation}</p></div>`;
+        feedbackBox.innerHTML = `<div class="p-3 bg-red-50 rounded-md border border-red-200"><p class="font-bold text-red-600">Kurang Tepat.</p><p class="text-slate-800 mt-2">${explanation}</p></div>`;
+        selectedOption.classList.add('incorrect');
+        
+        allOptions.forEach(btn => btn.disabled = true);
+
+        buttonEl.textContent = 'Coba Lagi';
+        buttonEl.dataset.state = 'retry';
     }
-    MathJax.typeset([feedbackBox]);
+    if (window.MathJax) {
+        MathJax.typesetPromise([feedbackBox]);
+    }
 }
+
 
 // --- LOGIKA KUIS ---
 let timerInterval;
@@ -637,7 +732,9 @@ function displayQuestion(index) {
     
     updateQuestionPanel();
     updateNavButtons();
-    MathJax.typeset([document.getElementById('question-area')]);
+    if (window.MathJax) {
+        MathJax.typesetPromise([document.getElementById('question-area')]);
+    }
 }
 
 function selectOption(option) {
@@ -738,7 +835,9 @@ function renderReportDetails() {
             </div>
         `;
     });
-    MathJax.typeset([container]);
+    if (window.MathJax) {
+        MathJax.typesetPromise([container]);
+    }
 }
 
 // --- EVENT LISTENERS ---
@@ -759,3 +858,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
